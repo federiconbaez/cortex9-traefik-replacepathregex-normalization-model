@@ -1,0 +1,24 @@
+name: ci
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: gofmt, go vet, go test (standard library only; a skipped test fails)
+        run: sh scripts/build.sh test
+      - name: Independent expectations still match the committed fixtures
+        run: python3 scripts/derive_expected.py | diff - fixtures/expected.tsv
+      - name: Independent sweep still matches the committed results
+        run: python3 scripts/derive_expected.py sweep | diff - results/sweep.csv
+      - name: Regenerate results and compare with committed artifacts
+        run: |
+          sh scripts/build.sh results /tmp/results
+          diff -r results /tmp/results
+          cd results && sha256sum -c SHA256SUMS

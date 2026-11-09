@@ -1,0 +1,27 @@
+# id	target	regex	replacement	mode
+# Hand-derived. Positives (p*) come from the NVD/GHSA text; diff test cases (d*) from the saved diff; negatives (n*); adversarial (a*).
+p01_ghsa_dotdot	/api../admin	^/api(.*)	/$1	router
+p02_ghsa_encoded_dotdot	/api%2e%2e/admin	^/api(.*)	/$1	router
+p03_single_dot	/api./admin	^/api(.*)	/$1	router
+p04_trailing_slash	/api../admin/	^/api(.*)	/$1	router
+p05_encoded_dot_slash	/api%2E%2E%2Fadmin	^/api(.*)	/$1	router
+p06_nested	/api../admin/x/../y	^/api(.*)	/$1	router
+d01_path_with_dotdot	/foo../bar	^/foo(.*)	/$1	mw
+d02_simple_regex	/whoami/and/whoami	^/whoami/(.*)	/who-am-i/$1	mw
+d03_replacement_escaped	/aaa/bbb	/aaa/bbb	/foo%2Fbar	mw
+d04_path_regex_escaped	/aaa%2Fbbb	/aaa%2Fbbb	/foo/bar	mw
+n01_separator_regex	/api/users	^/api/(.*)	/$1	router
+n02_separator_regex_dotdot	/api/../admin	^/api/(.*)	/$1	router
+n03_root	/api	^/api(.*)	/$1	router
+n04_no_match	/api/users	^/nomatch(.*)	/$1	router
+n05_admin_direct	/admin	^/api(.*)	/$1	router
+n06_other	/other	^/api(.*)	/$1	router
+a01_double_slash	/api/users	^/api(.*)	/$1	router
+a02_dotdot_to_root	/api..	^/api(.*)	/$1	router
+a03_relative_result	/api../admin	^/api(.*)	$1	router
+a04_bad_escape_in_replacement	/api/x	^/api(.*)	/%zz$1	router
+a05_bad_escape_in_target	/api%zz	^/api(.*)	/$1	router
+a06_query_not_in_domain	/api?x=1	^/api(.*)	/$1	router
+a07_bad_regex	/api/x	^/api((.*)	/$1	router
+a08_named_ref	/api/x	^/api(.*)	/$1x	router
+n07_config_maps_to_admin	/apiadmin	^/api(.*)	/$1	router
